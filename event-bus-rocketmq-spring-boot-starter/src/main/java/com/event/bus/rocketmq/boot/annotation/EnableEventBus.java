@@ -1,6 +1,6 @@
 package com.event.bus.rocketmq.boot.annotation;
 
-import com.event.bus.rocketmq.boot.autoconfigure.EventBusRocketMqAutoConfiguration;
+import com.event.bus.rocketmq.boot.autoconfigure.EventBusConsumerRegisterAutoConfiguration;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,6 +16,6 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(EventBusRocketMqAutoConfiguration.class)
+@Import(EventBusConsumerRegisterAutoConfiguration.class)
 public @interface EnableEventBus {
 }

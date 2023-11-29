@@ -7,7 +7,6 @@ import lombok.Data;
  * @date : 2023/11/24 16:29
  * @description:
  */
-@Data
 public abstract class EventBusAbstractMessage {
 
     private static final Integer DEFAULT_VERSION = 1;
@@ -28,5 +27,37 @@ public abstract class EventBusAbstractMessage {
      * 消息tag
      */
     public abstract String getTag();
+
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getShardingKey() {
+        return shardingKey;
+    }
+
+    public void setShardingKey(String shardingKey) {
+        this.shardingKey = shardingKey;
+    }
+
+
+    public Integer getVersion() {
+        return DEFAULT_VERSION;
+    }
+
+    public String getMsgId() {
+        return msgId;
+    }
+
+    public void setMsgId(String msgId) {
+        this.msgId = msgId;
+    }
+    
+    
 
 }

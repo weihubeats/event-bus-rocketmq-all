@@ -10,6 +10,7 @@ import com.event.bus.rocketmq.boot.core.EventBusApplicationListenerMethodAdapter
 import com.event.bus.rocketmq.boot.core.EventBusConsumerHolder;
 import com.event.bus.rocketmq.boot.core.EventBusMessageListener;
 import com.event.bus.rocketmq.boot.core.EventBusMessageListenerFactory;
+import com.event.bus.rocketmq.boot.core.EventBusSimpleEventMulticaster;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -31,12 +32,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -57,11 +56,9 @@ import org.springframework.util.ObjectUtils;
  * @description:
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(EventBusRocketMQProperties.class)
-@Import({EventBusRocketMQPropertiesHolder.class})
 @RequiredArgsConstructor
 @Slf4j
-public class EventBusRocketMqAutoConfiguration implements ApplicationContextAware, SmartInitializingSingleton, EnvironmentAware, DisposableBean {
+public class EventBusConsumerRegisterAutoConfiguration implements ApplicationContextAware, SmartInitializingSingleton, EnvironmentAware, DisposableBean {
 
     private StandardEnvironment environment;
 

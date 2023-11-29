@@ -9,6 +9,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>event-bus-rocketmq-spring-boot-starter</module>
+        <module>event-bus-rocketmq-spring-boot-samples</module>
     </modules>
     <version>${revision}</version>
 
@@ -27,6 +28,9 @@
         <lombok.version>1.18.22</lombok.version>
         <junit.version>4.13.1</junit.version>
         <aliyun.openservices.ons-client.version>1.8.8.5.Final</aliyun.openservices.ons-client.version>
+        <org.redisson.version>3.14.1</org.redisson.version>
+        <hutool-http.version>5.8.0</hutool-http.version>
+
     </properties>
 
     <dependencyManagement>
@@ -87,6 +91,18 @@
             </dependency>
 
             <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${org.redisson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-http</artifactId>
+                <version>${hutool-http.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
@@ -130,8 +146,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
             <plugin>

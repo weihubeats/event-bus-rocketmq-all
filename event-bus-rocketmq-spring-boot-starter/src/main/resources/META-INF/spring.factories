@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-        com.event.bus.rocketmq.boot.autoconfigure.EventBusRocketMqAutoConfiguration
+        com.event.bus.rocketmq.boot.autoconfigure.EventBusRocketMQAutoConfiguration
