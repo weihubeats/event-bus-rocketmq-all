@@ -1,1 +1,1 @@
-com.shopcider.rocketmq.spring.boot.EventBusRocketMQAutoConfiguration
+com.event.bus.rocketmq.boot.autoconfigure.EventBusRocketMQAutoConfiguration
