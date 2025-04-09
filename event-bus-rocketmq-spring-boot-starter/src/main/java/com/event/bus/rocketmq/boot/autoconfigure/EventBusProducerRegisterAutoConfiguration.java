@@ -1,10 +1,9 @@
 package com.event.bus.rocketmq.boot.autoconfigure;
 
-import com.aliyun.openservices.ons.api.ONSFactory;
-import com.aliyun.openservices.ons.api.Producer;
-import com.aliyun.openservices.ons.api.PropertyKeyConst;
 import com.event.bus.rocketmq.boot.annotation.EventBusProducer;
 import com.event.bus.rocketmq.boot.core.EventBusRocketMQTemplate;
+import com.event.bus.rocketmq.factory.EventBusClientFactory;
+import com.event.bus.rocketmq.factory.EventBusPropertyKeyConst;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -22,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
+import org.springframework.util.ObjectUtils;
 
 /**
  * @author : wh
@@ -37,8 +37,9 @@ public class EventBusProducerRegisterAutoConfiguration implements ApplicationCon
 
     private final EventBusRocketMQPropertiesHolder eventBusRocketMQPropertiesHolder;
 
-    private StandardEnvironment environment;
+    private final EventBusClientFactory eventBusClientFactory;
 
+    private StandardEnvironment environment;
 
     @Override
     public void afterSingletonsInstantiated() {
@@ -56,7 +57,7 @@ public class EventBusProducerRegisterAutoConfiguration implements ApplicationCon
         EventBusProducer annotation = clazz.getAnnotation(EventBusProducer.class);
         GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
         validate(annotation, genericApplicationContext);
-        Producer producer = createProducer(annotation);
+        com.event.bus.rocketmq.factory.producer.EventBusProducer producer = createProducer(annotation);
         try {
             producer.start();
             log.info("producer start, beanName {}", beanName);
@@ -70,15 +71,46 @@ public class EventBusProducerRegisterAutoConfiguration implements ApplicationCon
         log.info("Set real producer to {} {}", beanName, annotation.beanName());
     }
 
-    private Producer createProducer(EventBusProducer annotation) {
+    private com.event.bus.rocketmq.factory.producer.EventBusProducer createProducer(EventBusProducer annotation) {
         Properties properties = new Properties();
-        EventBusRocketMQProperties.Producer producer = eventBusRocketMQPropertiesHolder.getProducer();
-        properties.put(PropertyKeyConst.AccessKey, eventBusRocketMQPropertiesHolder.getAliMQAccessKey());
-        properties.put(PropertyKeyConst.SecretKey, eventBusRocketMQPropertiesHolder.getAliMQSecretKey());
-        properties.put(PropertyKeyConst.NAMESRV_ADDR, eventBusRocketMQPropertiesHolder.bindPropertyGlobal(annotation.nameServer(), EventBusRocketMQProperties.Producer::getNameServer, producer));
-        properties.put(PropertyKeyConst.GROUP_ID, eventBusRocketMQPropertiesHolder.bindProperty(annotation.groupId(), EventBusRocketMQProperties.Producer::getGroupID, producer));
 
-        return ONSFactory.createProducer(properties);
+        EventBusRocketMQProperties.Producer producer = eventBusRocketMQPropertiesHolder.getProducer();
+
+        String aliMQAccessKey = eventBusRocketMQPropertiesHolder.getAliMQAccessKey();
+
+        String aliMQSecretKey = eventBusRocketMQPropertiesHolder.getAliMQSecretKey();
+
+        if (!ObjectUtils.isEmpty(aliMQAccessKey)) {
+            properties.put(EventBusPropertyKeyConst.AccessKey, aliMQAccessKey);
+        }
+        if (!ObjectUtils.isEmpty(aliMQSecretKey)) {
+            properties.put(EventBusPropertyKeyConst.SecretKey, aliMQSecretKey);
+        }
+
+        String domain = eventBusRocketMQPropertiesHolder.getDomain();
+        String subgroup = eventBusRocketMQPropertiesHolder.getSubgroup();
+        if (!ObjectUtils.isEmpty(domain)) {
+            properties.put(EventBusPropertyKeyConst.DOMAIN, domain);
+        }
+        if (!ObjectUtils.isEmpty(subgroup)) {
+            properties.put(EventBusPropertyKeyConst.SUBGROUP, subgroup);
+        }
+
+        String onsNameserver = eventBusRocketMQPropertiesHolder.bindPropertyGlobal(annotation.onsNameServer(), EventBusRocketMQProperties.Producer::getOnsNameServer, producer);
+
+        if (!ObjectUtils.isEmpty(onsNameserver)) {
+            properties.put(EventBusPropertyKeyConst.ONS_NAMESRV_ADDR, onsNameserver);
+        }
+        // apache NameServe
+        String apacheNameserver = eventBusRocketMQPropertiesHolder.bindPropertyGlobal(annotation.apacheNameServer(), EventBusRocketMQProperties.Producer::getApacheNameServer, producer);
+
+        if (!ObjectUtils.isEmpty(apacheNameserver)) {
+            properties.put(EventBusPropertyKeyConst.APACHE_NAMESRV_ADDR, apacheNameserver);
+        }
+
+        properties.put(EventBusPropertyKeyConst.MsgTraceSwitch, eventBusRocketMQPropertiesHolder.getEnableMsgTrace());
+
+        return eventBusClientFactory.createProducer(properties);
     }
 
     private void validate(EventBusProducer annotation, GenericApplicationContext genericApplicationContext) {

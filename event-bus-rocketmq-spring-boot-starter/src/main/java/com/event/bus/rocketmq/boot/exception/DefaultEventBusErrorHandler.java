@@ -2,11 +2,11 @@ package com.event.bus.rocketmq.boot.exception;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import com.aliyun.openservices.ons.api.Message;
 import com.event.bus.rocketmq.boot.autoconfigure.EventBusRocketMQProperties;
 import com.event.bus.rocketmq.boot.core.EventBusErrorHandler;
 import com.event.bus.rocketmq.boot.core.EventBusSubscriberExceptionContext;
 import com.event.bus.rocketmq.boot.utils.ThreadFactoryImpl;
+import com.event.bus.rocketmq.factory.EventBusMessage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -41,10 +41,10 @@ public class DefaultEventBusErrorHandler implements EventBusErrorHandler {
     public void handleException(Throwable exception, EventBusSubscriberExceptionContext context) {
         String larkWebHook = eventBusRocketMQProperties.getLarkWebHook();
         if (ObjectUtils.isEmpty(larkWebHook)) {
-            log.error("consumer fails, but no monitoring link is configured");
+            log.error("consumer fails, but no monitoring link is configured, error: ", exception);
             return;
         }
-        Message message = context.getMessage();
+        EventBusMessage message = context.getMessage();
         String msgID = message.getMsgID();
         String tag = message.getTag();
         String methodName = context.getMethod().getName();

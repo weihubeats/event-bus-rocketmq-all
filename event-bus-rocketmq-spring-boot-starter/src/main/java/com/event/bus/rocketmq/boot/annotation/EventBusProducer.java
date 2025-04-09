@@ -22,7 +22,19 @@ public @interface EventBusProducer {
 
     String GROUP_ID = "${event.bus.product.group.id:}";
 
-    String nameServer() default "${event.bus.rocketmq.nameServer:}";
+    /**
+     * apache NameServer
+     */
+    String APACHE_NAMESERV_ADDR = "${event.bus.rocketmq.apache.nameServer:}";
+
+    /**
+     * ONS NameServer
+     */
+    String ONS_NAMESERV_ADDR = "${event.bus.rocketmq.ons.nameServer:}";
+
+    String apacheNameServer() default APACHE_NAMESERV_ADDR;
+
+    String onsNameServer() default ONS_NAMESERV_ADDR;
 
     /**
      * bean Name

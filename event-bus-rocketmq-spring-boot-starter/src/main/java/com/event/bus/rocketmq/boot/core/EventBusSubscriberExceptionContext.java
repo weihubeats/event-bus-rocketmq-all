@@ -1,6 +1,6 @@
 package com.event.bus.rocketmq.boot.core;
 
-import com.aliyun.openservices.ons.api.Message;
+import com.event.bus.rocketmq.factory.EventBusMessage;
 import java.lang.reflect.Method;
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import lombok.Data;
 public class EventBusSubscriberExceptionContext {
 
 
-    private Message message;
+    private EventBusMessage message;
 
     private Method method;
 

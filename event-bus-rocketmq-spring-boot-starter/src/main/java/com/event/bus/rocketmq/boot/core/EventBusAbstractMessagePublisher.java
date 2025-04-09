@@ -1,9 +1,9 @@
 package com.event.bus.rocketmq.boot.core;
 
-import com.aliyun.openservices.ons.api.Action;
-import com.aliyun.openservices.ons.api.ConsumeContext;
-import com.aliyun.openservices.ons.api.Message;
-import com.aliyun.openservices.ons.api.MessageListener;
+import com.event.bus.rocketmq.factory.EventBusMessage;
+import com.event.bus.rocketmq.factory.consumer.EventBusConsumeContext;
+import com.event.bus.rocketmq.factory.consumer.FEventBusMessageListener;
+import com.event.bus.rocketmq.factory.status.EventBusAction;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
  * @description:
  */
 @Slf4j
-public class EventBusAbstractMessagePublisher implements MessageListener {
+public class EventBusAbstractMessagePublisher implements FEventBusMessageListener {
 
     @Nullable
     private final EventBusMessageMulticaster eventBusMessageMulticaster;
@@ -27,7 +27,7 @@ public class EventBusAbstractMessagePublisher implements MessageListener {
         this.groupTopicConsumerId = groupTopicConsumerId;
     }
 
-    public boolean publishMessage(Message message) {
+    public boolean publishMessage(EventBusMessage message) {
         Assert.notNull(message, "message must not be null");
         if (this.eventBusMessageMulticaster == null) {
             throw new IllegalStateException("EventBusMessageMulticaster not initialized");
@@ -36,15 +36,15 @@ public class EventBusAbstractMessagePublisher implements MessageListener {
     }
 
     @Override
-    public Action consume(Message message, ConsumeContext context) {
+    public EventBusAction consume(EventBusMessage message, EventBusConsumeContext context) {
         String msgBody = new String(message.getBody(), StandardCharsets.UTF_8);
         String msgID = message.getMsgID();
         log.info("收到消息 id {} body {} tag {}", msgID, msgBody, message.getTag());
         if (publishMessage(message)) {
-            return Action.CommitMessage;
+            return EventBusAction.CommitMessage;
         } else {
             log.error("message {} 执行失败,等待重试 重试次数 {}", msgID, message.getReconsumeTimes());
-            return Action.ReconsumeLater;
+            return EventBusAction.ReconsumeLater;
         }
     }
 

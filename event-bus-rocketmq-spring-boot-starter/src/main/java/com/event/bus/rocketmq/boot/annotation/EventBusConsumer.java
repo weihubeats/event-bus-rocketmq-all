@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 public @interface EventBusConsumer {
 
     String GROUP_ID = "${event.bus.rocketmq.consumer.groupId:}";
+    
     String TOPIC = "${event.bus.rocketmq.consumer.topic:}";
     /**
      * 消费线程数
@@ -28,16 +29,23 @@ public @interface EventBusConsumer {
     String MAX_RECONSUME_TIMES = "${consumer.max.reconsume.times:}";
     
     /**
-     * NameServer
+     * apache NameServer
      */
-    String NAMESERV_ADDR = "${event.bus.rocketmq.nameServer:}";
+    String APACHE_NAMESERV_ADDR = "${event.bus.rocketmq.apache.nameServer:}";
+
+    /**
+     * ONS NameServer
+     */
+    String ONS_NAMESERV_ADDR = "${event.bus.rocketmq.ons.nameServer:}";
 
 
     String topic() default TOPIC;
 
     String groupId() default GROUP_ID;
 
-    String nameServer() default NAMESERV_ADDR;
+    String apacheNameServer() default APACHE_NAMESERV_ADDR;
+
+    String onsNameServer() default ONS_NAMESERV_ADDR;
     
 
 

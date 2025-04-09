@@ -7,6 +7,7 @@ import com.event.bus.rocketmq.boot.core.EventBusSimpleEventMulticaster;
 import com.event.bus.rocketmq.boot.exception.DefaultEventBusErrorHandler;
 import com.event.bus.rocketmq.boot.storage.MethodSuccessStorage;
 import com.event.bus.rocketmq.boot.storage.RedisMethodSuccessStorageImpl;
+import com.event.bus.rocketmq.factory.EventBusClientFactory;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -24,7 +25,6 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties(EventBusRocketMQProperties.class)
 @Import({EventBusRocketMQPropertiesHolder.class, EventBusProducerRegisterAutoConfiguration.class, DefaultEventBusMessageListenerFactory.class, EventBusSimpleEventMulticaster.class})
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "event.bus.rocketmq", value = "name-server")
 @Configuration
 public class EventBusRocketMQAutoConfiguration {
 
@@ -51,7 +51,7 @@ public class EventBusRocketMQAutoConfiguration {
      */
     @ConditionalOnProperty(name = "event.bus.consumer.enabled", matchIfMissing = true, havingValue = "true")
     @Bean
-    public EventBusConsumerRegisterAutoConfiguration eventBusConsumerRegisterAutoConfiguration(EventBusRocketMQPropertiesHolder eventBusRocketMQPropertiesHolder) {
-        return new EventBusConsumerRegisterAutoConfiguration(eventBusRocketMQPropertiesHolder);
+    public EventBusConsumerRegisterAutoConfiguration eventBusConsumerRegisterAutoConfiguration(EventBusRocketMQPropertiesHolder eventBusRocketMQPropertiesHolder, EventBusClientFactory eventBusClientFactory) {
+        return new EventBusConsumerRegisterAutoConfiguration(eventBusRocketMQPropertiesHolder, eventBusClientFactory);
     }
 }

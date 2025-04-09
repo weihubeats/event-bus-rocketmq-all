@@ -1,8 +1,5 @@
 package com.event.bus.rocketmq.boot.autoconfigure;
 
-import com.aliyun.openservices.ons.api.Consumer;
-import com.aliyun.openservices.ons.api.ONSFactory;
-import com.aliyun.openservices.ons.api.PropertyKeyConst;
 import com.event.bus.rocketmq.boot.annotation.EventBusConsumer;
 import com.event.bus.rocketmq.boot.annotation.EventBusListener;
 import com.event.bus.rocketmq.boot.core.EventBusAbstractMessagePublisher;
@@ -11,6 +8,8 @@ import com.event.bus.rocketmq.boot.core.EventBusConsumerHolder;
 import com.event.bus.rocketmq.boot.core.EventBusMessageListener;
 import com.event.bus.rocketmq.boot.core.EventBusMessageListenerFactory;
 import com.event.bus.rocketmq.boot.core.EventBusSimpleEventMulticaster;
+import com.event.bus.rocketmq.factory.EventBusClientFactory;
+import com.event.bus.rocketmq.factory.EventBusPropertyKeyConst;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -64,7 +63,9 @@ public class EventBusConsumerRegisterAutoConfiguration implements ApplicationCon
 
     private ApplicationContext applicationContext;
 
-    private final Set<Consumer> consumers = new CopyOnWriteArraySet<>();
+    private final EventBusRocketMQPropertiesHolder eventBusRocketMQPropertiesHolder;
+
+    private final EventBusClientFactory eventBusClientFactory;
 
     /**
      * key  consumerId value: method
@@ -73,7 +74,7 @@ public class EventBusConsumerRegisterAutoConfiguration implements ApplicationCon
 
     private final Set<String> consumersSet = new CopyOnWriteArraySet<>();
 
-    private final EventBusRocketMQPropertiesHolder eventBusRocketMQPropertiesHolder;
+    private final Set<com.event.bus.rocketmq.factory.consumer.EventBusConsumer> consumers = new CopyOnWriteArraySet<>();
 
     private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
 
@@ -118,7 +119,7 @@ public class EventBusConsumerRegisterAutoConfiguration implements ApplicationCon
         Set<EventBusMessageListener<?>> listeners = messageListeners.get(consumerId(annotation));
 
         // create consumer but not subscribe
-        Consumer consumer = createConsumer(annotation);
+        com.event.bus.rocketmq.factory.consumer.EventBusConsumer consumer = createConsumer(annotation);
         // Save to the spring container for destruction use
         consumers.add(consumer);
         // register consumer bean
@@ -152,7 +153,8 @@ public class EventBusConsumerRegisterAutoConfiguration implements ApplicationCon
         });
     }
 
-    private void initAbstractMessagePublisher(Consumer consumer, Set<EventBusMessageListener<?>> listeners,
+    private void initAbstractMessagePublisher(com.event.bus.rocketmq.factory.consumer.EventBusConsumer consumer,
+        Set<EventBusMessageListener<?>> listeners,
         EventBusConsumer annotation) {
         // todo support custom multicaster
         // get bean from spring ioc
@@ -167,17 +169,54 @@ public class EventBusConsumerRegisterAutoConfiguration implements ApplicationCon
         consumer.subscribe(topic, "*", abstractMessagePublisher);
     }
 
-    private Consumer createConsumer(EventBusConsumer annotation) {
+    private com.event.bus.rocketmq.factory.consumer.EventBusConsumer createConsumer(EventBusConsumer annotation) {
         EventBusRocketMQProperties.Consumer propertiesConsumer = eventBusRocketMQPropertiesHolder.getConsumer();
         Properties properties = new Properties();
 
-        properties.put(PropertyKeyConst.GROUP_ID, eventBusRocketMQPropertiesHolder.bindProperty(annotation.groupId(), EventBusRocketMQProperties.Consumer::getGroupId, propertiesConsumer));
-        properties.put(PropertyKeyConst.AccessKey, eventBusRocketMQPropertiesHolder.getAliMQAccessKey());
-        properties.put(PropertyKeyConst.SecretKey, eventBusRocketMQPropertiesHolder.getAliMQSecretKey());
-        properties.put(PropertyKeyConst.NAMESRV_ADDR, eventBusRocketMQPropertiesHolder.bindPropertyGlobal(annotation.nameServer(), EventBusRocketMQProperties.Consumer::getNameServer, propertiesConsumer));
-        properties.put(PropertyKeyConst.ConsumeThreadNums, eventBusRocketMQPropertiesHolder.bindPropertyByInt(annotation.consumerThreadNums(), EventBusRocketMQProperties.Consumer::getConsumerThreadNums, propertiesConsumer));
-        properties.put(PropertyKeyConst.MaxReconsumeTimes, eventBusRocketMQPropertiesHolder.bindPropertyByInt(annotation.maxReconsumeTimes(), EventBusRocketMQProperties.Consumer::getMaxReconsumeTimes, propertiesConsumer));
-        return ONSFactory.createConsumer(properties);
+        properties.put(EventBusPropertyKeyConst.GROUP_ID, eventBusRocketMQPropertiesHolder.bindProperty(annotation.groupId(), EventBusRocketMQProperties.Consumer::getGroupId, propertiesConsumer));
+
+        String aliMQAccessKey = eventBusRocketMQPropertiesHolder.getAliMQAccessKey();
+
+        String aliMQSecretKey = eventBusRocketMQPropertiesHolder.getAliMQSecretKey();
+
+        String domain = eventBusRocketMQPropertiesHolder.getDomain();
+        String subgroup = eventBusRocketMQPropertiesHolder.getSubgroup();
+        if (!ObjectUtils.isEmpty(domain)) {
+            properties.put(EventBusPropertyKeyConst.DOMAIN, domain);
+        }
+        if (!ObjectUtils.isEmpty(subgroup)) {
+            properties.put(EventBusPropertyKeyConst.SUBGROUP, subgroup);
+        }
+
+        if (!ObjectUtils.isEmpty(aliMQAccessKey)) {
+            properties.put(EventBusPropertyKeyConst.AccessKey, aliMQAccessKey);
+        }
+        if (!ObjectUtils.isEmpty(aliMQSecretKey)) {
+            properties.put(EventBusPropertyKeyConst.SecretKey, aliMQSecretKey);
+        }
+
+        String onsNameserver = eventBusRocketMQPropertiesHolder.bindPropertyGlobal(annotation.onsNameServer(), EventBusRocketMQProperties.Consumer::getOnsNameServer, propertiesConsumer);
+
+        if (!ObjectUtils.isEmpty(onsNameserver)) {
+            properties.put(EventBusPropertyKeyConst.ONS_NAMESRV_ADDR, onsNameserver);
+        }
+        // apache NameServe
+        String apacheNameserver = eventBusRocketMQPropertiesHolder.bindPropertyGlobal(annotation.apacheNameServer(), EventBusRocketMQProperties.Consumer::getApacheNameServer, propertiesConsumer);
+
+        if (!ObjectUtils.isEmpty(apacheNameserver)) {
+            properties.put(EventBusPropertyKeyConst.APACHE_NAMESRV_ADDR, apacheNameserver);
+        }
+
+        Integer consumerThreadNums = eventBusRocketMQPropertiesHolder.bindPropertyByInt(annotation.consumerThreadNums(), EventBusRocketMQProperties.Consumer::getConsumerThreadNums, propertiesConsumer);
+        if (!ObjectUtils.isEmpty(consumerThreadNums)) {
+            properties.put(EventBusPropertyKeyConst.ConsumeThreadNums, consumerThreadNums);
+        }
+
+        Integer maxReconsumeTimes = eventBusRocketMQPropertiesHolder.bindPropertyByInt(annotation.maxReconsumeTimes(), EventBusRocketMQProperties.Consumer::getMaxReconsumeTimes, propertiesConsumer);
+        if (!ObjectUtils.isEmpty(maxReconsumeTimes)) {
+            properties.put(EventBusPropertyKeyConst.MaxReconsumeTimes, maxReconsumeTimes);
+        }
+        return eventBusClientFactory.createConsumer(properties);
     }
 
     @Override
@@ -280,7 +319,7 @@ public class EventBusConsumerRegisterAutoConfiguration implements ApplicationCon
 
     @Override
     public void destroy() {
-        for (Consumer consumer : consumers) {
+        for (com.event.bus.rocketmq.factory.consumer.EventBusConsumer consumer : consumers) {
             if (!ObjectUtils.isEmpty(consumer)) {
                 log.info("evnet bus rocketmq consumer shutdown");
                 consumer.shutdown();

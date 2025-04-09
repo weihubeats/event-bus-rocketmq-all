@@ -10,6 +10,9 @@
     <modules>
         <module>event-bus-rocketmq-spring-boot-starter</module>
         <module>event-bus-rocketmq-spring-boot-samples</module>
+        <module>event-bus-rocketmq-factory</module>
+        <module>event-bus-rocketmq-apache</module>
+        <module>event-bus-rocketmq-apache-boot-starter</module>
     </modules>
     <version>${revision}</version>
 
@@ -18,23 +21,33 @@
     <url>https://github.com/weihubeats/event-bus-rocketmq-all</url>
 
     <properties>
-        <revision>0.0.01</revision>
+        <revision>0.0.1</revision>
         <flatten-maven-plugin.version>1.2.7</flatten-maven-plugin.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>2.7.0</spring-boot.version>
-        <rocketmq-client.version>5.1.0</rocketmq-client.version>
+        <rocketmq-client.version>5.3.2</rocketmq-client.version>
         <lombok.version>1.18.22</lombok.version>
         <junit.version>4.13.1</junit.version>
         <aliyun.openservices.ons-client.version>1.8.8.5.Final</aliyun.openservices.ons-client.version>
         <org.redisson.version>3.14.1</org.redisson.version>
         <hutool-http.version>5.8.0</hutool-http.version>
+        <fastjson.version>2.0.33</fastjson.version>
+        <guava.version>33.4.6-jre</guava.version>
+
 
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
@@ -46,6 +59,43 @@
                 <groupId>com.aliyun.openservices</groupId>
                 <artifactId>ons-client</artifactId>
                 <version>${aliyun.openservices.ons-client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.weihubeats</groupId>
+                <artifactId>event-bus-rocketmq-apache-boot-starter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.weihubeats</groupId>
+                <artifactId>event-bus-rocketmq-factory</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.weihubeats</groupId>
+                <artifactId>event-bus-rocketmq-spring-boot-starter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.weihubeats</groupId>
+                <artifactId>event-bus-rocketmq-apache</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.17.0</version>
             </dependency>
 
 
