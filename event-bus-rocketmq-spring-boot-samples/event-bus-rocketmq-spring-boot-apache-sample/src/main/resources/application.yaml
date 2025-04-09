@@ -1,0 +1,17 @@
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password:
+
+logging:
+  config: classpath:logback.xml
+  
+
+event:
+  bus:
+    domain: event.bus.xiaozou.com:80
+    subgroup: nsaddr-1
+    order:
+      consumer:
+        groupId: gid_event_bus
+      topic: event-bus-topic

@@ -1,6 +1,6 @@
 package com.event.bus.rocketmq.boot.core;
 
-import com.aliyun.openservices.ons.api.Message;
+import com.event.bus.rocketmq.factory.EventBusMessage;
 import java.util.Collection;
 
 /**
@@ -9,7 +9,8 @@ import java.util.Collection;
  * @description:
  */
 public interface EventBusMessageMulticaster {
-    boolean multicastMessage(Message message, String uniqueConsumerId);
+    
+    boolean multicastMessage(EventBusMessage message, String uniqueConsumerId);
 
     void addMessageListeners(Collection<EventBusMessageListener<?>> listeners, String uniqueConsumerId);
 }

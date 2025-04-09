@@ -1,12 +1,12 @@
 package com.event.bus.rocketmq.boot.core;
 
-import com.aliyun.openservices.ons.api.Message;
-import com.aliyun.openservices.shade.com.google.common.collect.Lists;
 import com.event.bus.rocketmq.boot.constants.EventBusMessageConstants;
 import com.event.bus.rocketmq.boot.exception.EventBusResolvableTypeException;
 import com.event.bus.rocketmq.boot.storage.MethodSuccessStorage;
 import com.event.bus.rocketmq.boot.utils.JsonUtil;
+import com.event.bus.rocketmq.factory.EventBusMessage;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,7 +47,7 @@ public class EventBusSimpleEventMulticaster implements EventBusMessageMulticaste
 //    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     @Override
-    public boolean multicastMessage(Message message, String uniqueConsumerId) {
+    public boolean multicastMessage(EventBusMessage message, String uniqueConsumerId) {
         boolean success = true;
         String tag = message.getTag();
         Collection<EventBusMessageListener<?>> messageListenersByTag = getMessageListenersByTag(uniqueConsumerId, tag);
@@ -64,7 +64,7 @@ public class EventBusSimpleEventMulticaster implements EventBusMessageMulticaste
     }
 
     private Collection<EventBusMessageListener<?>> filterSuccessMethod(
-        Collection<EventBusMessageListener<?>> messageListeners, Message message) {
+        Collection<EventBusMessageListener<?>> messageListeners, EventBusMessage message) {
         Collection<EventBusMessageListener<?>> failOrFirstMessageListener = new ArrayList<>();
         messageListeners.forEach(s -> {
             EventBusApplicationListenerMethodAdapter applicationListenerMethodAdapter = (EventBusApplicationListenerMethodAdapter) s;
@@ -93,7 +93,7 @@ public class EventBusSimpleEventMulticaster implements EventBusMessageMulticaste
 
     private Collection<EventBusMessageListener<?>> getMessageListenersByTag(String consumerId, String tag) {
         // todo: add cache
-        ArrayList<EventBusMessageListener<?>> result = Lists.newArrayList();
+        ArrayList<EventBusMessageListener<?>> result = Lists.newArrayList(); 
 
         if (!this.messageListeners.containsKey(consumerId)) {
             // the consumer has no listeners because the listeners map has no its key
@@ -133,7 +133,7 @@ public class EventBusSimpleEventMulticaster implements EventBusMessageMulticaste
         return ResolvableType.forInstance(eventBusAbstractMessage);
     }
 
-    protected boolean invokeListener(EventBusMessageListener<?> listener, Message message) {
+    protected boolean invokeListener(EventBusMessageListener<?> listener, EventBusMessage message) {
         EventBusErrorHandler errorHandler = getErrorHandler();
         if (errorHandler != null) {
             try {
@@ -148,7 +148,7 @@ public class EventBusSimpleEventMulticaster implements EventBusMessageMulticaste
         return true;
     }
 
-    public EventBusSubscriberExceptionContext builderSubscriberExceptionContext(Message message,
+    public EventBusSubscriberExceptionContext builderSubscriberExceptionContext(EventBusMessage message,
         EventBusMessageListener<?> listener) {
         EventBusSubscriberExceptionContext subscriberExceptionContext = new EventBusSubscriberExceptionContext();
         subscriberExceptionContext.setMessage(message);
@@ -159,7 +159,7 @@ public class EventBusSimpleEventMulticaster implements EventBusMessageMulticaste
         return subscriberExceptionContext;
     }
 
-    private void doInvokeListener(EventBusMessageListener<?> listener, Message message) {
+    private void doInvokeListener(EventBusMessageListener<?> listener, EventBusMessage message) {
         EventBusApplicationListenerMethodAdapter eventBusApplicationListenerMethodAdapter = (EventBusApplicationListenerMethodAdapter) listener;
         long start = System.currentTimeMillis();
         log.info("event bus mq 消费开始 msgID {} listener {}, method {}", message.getMsgID(), listener.getClass(), eventBusApplicationListenerMethodAdapter.getMethod().getName());

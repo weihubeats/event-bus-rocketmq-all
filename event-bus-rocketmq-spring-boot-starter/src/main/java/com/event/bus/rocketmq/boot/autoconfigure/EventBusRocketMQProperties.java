@@ -53,7 +53,9 @@ public class EventBusRocketMQProperties {
     @Data
     public static class Producer {
 
-        private String nameServer;
+        private String apacheNameServer;
+
+        private String onsNameServer;
 
         private String topic;
 
@@ -81,7 +83,9 @@ public class EventBusRocketMQProperties {
 
         private String groupId;
 
-        private String nameServer;
+        private String apacheNameServer;
+        
+        private String onsNameServer;
 
         private Integer consumerThreadNums = 20;
 

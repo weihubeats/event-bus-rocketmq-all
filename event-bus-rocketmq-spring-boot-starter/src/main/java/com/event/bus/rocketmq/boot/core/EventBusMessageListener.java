@@ -5,5 +5,5 @@ package com.event.bus.rocketmq.boot.core;
  * @date : 2023/11/27 18:00
  * @description:
  */
-public interface EventBusMessageListener<T> {
+public interface EventBusMessageListener<EventBusMessage> {
 }

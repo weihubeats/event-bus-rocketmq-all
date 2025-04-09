@@ -1,6 +1,6 @@
 package com.event.bus.rocketmq.boot.core;
 
-import com.aliyun.openservices.ons.api.Consumer;
+import com.event.bus.rocketmq.factory.consumer.EventBusConsumer;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.DisposableBean;
@@ -13,8 +13,7 @@ import org.springframework.beans.factory.DisposableBean;
 @RequiredArgsConstructor
 public class EventBusConsumerHolder implements DisposableBean {
 
-    private final Consumer consumer;
-
+    private final EventBusConsumer consumer;
 
     @Override
     public void destroy() {
