@@ -83,6 +83,8 @@ public class EventBusRocketMQProperties {
 
         private String groupId;
 
+        private String tag = "*";
+
         private String apacheNameServer;
         
         private String onsNameServer;

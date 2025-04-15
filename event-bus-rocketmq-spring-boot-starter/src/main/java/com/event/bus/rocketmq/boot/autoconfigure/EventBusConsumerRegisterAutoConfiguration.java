@@ -166,7 +166,9 @@ public class EventBusConsumerRegisterAutoConfiguration implements ApplicationCon
         multicaster.addMessageListeners(listeners, groupTopicConsumerId);
         String topic = eventBusRocketMQPropertiesHolder.bindProperty(annotation.topic(), EventBusRocketMQPropertiesHolder::getTopic, eventBusRocketMQPropertiesHolder);
         EventBusAbstractMessagePublisher abstractMessagePublisher = new EventBusAbstractMessagePublisher(multicaster, groupTopicConsumerId);
-        consumer.subscribe(topic, "*", abstractMessagePublisher);
+        String tag = eventBusRocketMQPropertiesHolder.bindProperty(annotation.tag(), EventBusRocketMQPropertiesHolder::getTag, eventBusRocketMQPropertiesHolder);
+
+        consumer.subscribe(topic, tag, abstractMessagePublisher);
     }
 
     private com.event.bus.rocketmq.factory.consumer.EventBusConsumer createConsumer(EventBusConsumer annotation) {

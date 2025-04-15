@@ -9,9 +9,9 @@ import com.event.bus.rocketmq.boot.core.EventBusRocketMQTemplate;
  * @description:
  */
 @EventBusProducer(
-    apacheNameServer = "${event.bus.rocketmq.name-server}",
-    topic = "${event.bus.rocketmq.pay.topic}",
-    groupId = "${event.bus.rocketmq.pay.producer.groupId}"
+    apacheNameServer = "${event.bus.rocketmq.name-server:}",
+    topic = "${event.bus.rocketmq.pay.topic:}",
+    groupId = "${event.bus.rocketmq.pay.producer.groupId:}"
 )
 public class PayProducer extends EventBusRocketMQTemplate {
 }

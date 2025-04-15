@@ -84,6 +84,10 @@ public class EventBusRocketMQPropertiesHolder implements EnvironmentAware {
         return rocketMQProperties.getTopic();
     }
 
+    public String getTag() {
+        return rocketMQProperties.getConsumer().getTag();
+    }
+
     public String getDomain() {
         return rocketMQProperties.getDomain();
     }
